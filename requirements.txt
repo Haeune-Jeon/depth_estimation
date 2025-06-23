@@ -1,0 +1,25 @@
+# PyTorch 및 torchvision: CUDA 11.8 기준
+torch==2.0.1
+torchvision==0.15.2
+
+# 필수
+cython
+opencv-python
+pycocotools
+termcolor
+matplotlib
+tqdm
+yacs
+ninja
+tensorboard
+future
+
+# Detectron2 설치용 (컴파일에 필요)
+scikit-image
+setuptools==59.5.0
+wheel
+
+# 기타
+psutil
+pyyaml
+tabulate

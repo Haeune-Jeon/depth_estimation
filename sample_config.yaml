@@ -1,0 +1,102 @@
+DATASETS:
+  TRAIN: ("sample_train",)
+  TEST: ()
+
+INPUT:
+  AUG_TYPE: "strong"
+  AUG_EXTRA: true
+  FORMAT: "BGR"
+  MASK_FORMAT: "polygon"
+  MIN_SIZE_TRAIN: [800]
+  MAX_SIZE_TRAIN: 1333
+  MIN_SIZE_TEST: 800
+  MAX_SIZE_TEST: 1333
+
+DATALOADER:
+  NUM_WORKERS: 0
+
+SOLVER:
+  IMS_PER_BATCH: 2
+  BASE_LR: 0.00025
+  STEPS: (10,)
+  MAX_ITER: 20
+  CHECKPOINT_PERIOD: 10
+  BACKBONE_MULTIPLIER: 1.0
+  OPTIMIZER: "SGD"
+
+MODEL:
+  META_ARCHITECTURE: "BoxTeacher"
+  DEVICE: "cpu" # GPU 사용 시 "cuda"로 변경
+  WEIGHTS: "weights/boxteacher_r50_aug_3x.pth"
+  MASK_ON: true
+
+  BACKBONE:
+    NAME: "build_resnet_fpn_backbone"
+
+  RESNETS:
+    DEPTH: 50
+    OUT_FEATURES: ["res2", "res3", "res4", "res5"]
+
+  FPN:
+    IN_FEATURES: ["res2", "res3", "res4", "res5"]
+    OUT_CHANNELS: 256
+
+  PROPOSAL_GENERATOR:
+    NAME: "FCOS"
+
+  FCOS:
+    IN_FEATURES: ["p3", "p4", "p5"] # KeyError: 'p7' 해결을 위한 추가
+
+  CONDINST:
+    MASK_BRANCH:
+      IN_FEATURES: ["p3", "p4", "p5"]
+      CHANNELS: 128
+      NORM: "BN"
+      NUM_CONVS: 4
+      OUT_CHANNELS: 8
+
+    MASK_HEAD:
+      CHANNELS: 8
+      DISABLE_REL_COORDS: false
+      NUM_LAYERS: 3
+      USE_FP16: false
+
+    MASK_OUT_STRIDE: 4
+
+  BOX_TEACHER:
+    USE_TEACHER_INFERENCE: true
+    TEACHER_EVAL: false
+    TEACHER_MASK_THRESHOLD: 0.5
+    MASK_WEIGHT: 0.5
+    MASK_AFFINITY_WEIGHT: 0.1
+    MASK_AFFINITY_THRESH: 0.5
+    IOU_THR: 0.5
+    MOMENTUM: 0.999
+    USE_AUG: false
+    WITH_WARMUP: true
+    WARMUP_ITERS: 10000
+    SCORE_THR: 0.0
+
+  ROI_HEADS:
+    NAME: "StandardROIHeads"
+    NUM_CLASSES: 40
+    SCORE_THRESH_TEST: 0.5
+    IN_FEATURES: ["res4"]
+
+  ROI_BOX_HEAD:
+    NAME: "FastRCNNConvFCHead"
+    NUM_FC: 2
+    FC_DIM: 1024
+
+  ROI_MASK_HEAD:
+    NAME: "MaskRCNNConvUpsampleHead"
+    NUM_CONV: 4
+    CONV_DIM: 256
+
+  ANCHOR_GENERATOR:
+    SIZES: [[32, 64, 128, 256, 512]]
+    ASPECT_RATIOS: [[0.5, 1.0, 2.0]]
+    ANGLES: [[-90, 0, 90]]
+    OFFSET: 0.0
+
+OUTPUT_DIR: "./output/sample_test"
