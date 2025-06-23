@@ -1,33 +1,11 @@
-# 가상환경 및 불필요한 시스템 파일
-detectron2_env/
 __pycache__/
 *.pyc
-*.pkl
-*.pth
 *.pt
+*.pth
 *.ckpt
-
-# 학습 결과물, 로그
 output/
 weights/
-*.log
-
-# OS 메타파일
-.DS_Store
-
-# 기존의 Git 저장소 (서브모듈 충돌 방지용)
-AdelaiDet/.git
-detectron2/.git
-
-__pycache__/
-*.pyc
-*.pth
-*.pt
-*.ckpt
 detectron2_env/
-output/
-weights/
 .DS_Store
 AdelaiDet/.git
 detectron2/.git
-
